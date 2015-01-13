@@ -1,17 +1,17 @@
 !obj:pylearn2.train.Train {
-    dataset: &train !obj:pylearn2.datasets.ilc.ILC {
+    dataset: &train !obj:ilc.ILC {
+         name: "images"
     },
-    model: !obj:pylearn2.models.autoencoder.DenoisingAutoencoder {
+
+      model: !obj:pylearn2.models.autoencoder.DenoisingAutoencoder {
         nvis : 9720,
         nhid : 200,
         irange : 0.001,
-        corruptor: !obj:pylearn2.corruption.BinomialCorruptor {
+        corruptor: !obj:pylearn2.corruption.SaltPepperCorruptor {
             corruption_level: .2,
         },
         act_enc: "sigmoid",
         act_dec: "sigmoid",    # Linear activation on the decoder side.
-
-
     },
     algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
         learning_rate : 1e-3,
@@ -19,11 +19,18 @@
         learning_rule: !obj:pylearn2.training_algorithms.learning_rule.AdaDelta {},
         monitoring_batches : 10,
         monitoring_dataset : *train,
-        #cost : !obj:pylearn2.costs.autoencoder.MeanSquaredReconstructionError {},
-        termination_criterion : !obj:pylearn2.termination_criteria.EpochCounter {
-            max_epochs: 500,
+        termination_criterion: !obj:pylearn2.termination_criteria.And {
+            criteria: [
+                !obj:pylearn2.termination_criteria.MonitorBased {
+                    channel_name: "reconstruction_error",
+                    prop_decrease: 0.,
+                    N: 10
+                },
+                !obj:pylearn2.termination_criteria.EpochCounter {
+                    max_epochs: 1000
+                }
+            ]
         },
-
         cost: !obj:pylearn2.costs.cost.SumOfCosts {
             costs: [
                 !obj:pylearn2.costs.autoencoder.MeanBinaryCrossEntropy {},
@@ -34,6 +41,7 @@
             ]
         }
     },
+
     save_path: "dae3.pkl",
     save_freq: 1
 }

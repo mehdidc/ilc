@@ -17,7 +17,9 @@ def raw_images_post_processing(result):
 
 def raw_images_predict_angle_event_to_array(result, values, event_id=None):
     result = raw_images_event_to_array(result, values, event_id)
-    result[1][event_id][0] = np.mean(values["z_angles"])
+    v = values["z_angles"]
+    result[1][event_id][0] = np.mean(np.log(v)) if len(v)>0 else 0
+    result[1][event_id][1] = np.std(np.log(v)) if len(v)>0 else 0
     return result
 
 def raw_images_predict_angle_post_processing(result):
@@ -30,7 +32,7 @@ raw_images = {"variables": ["energy", "posx", "posy", "posz"],
 
 raw_images_predict_angle = {"variables": raw_images["variables"] + ["z_angles"], 
                             "event_to_array_func": raw_images_predict_angle_event_to_array,
-                            "shapes": ((30, 18, 18), (1,) ),
+                            "shapes": ((30, 18, 18), (2,) ),
                             "post_processing_func": raw_images_predict_angle_post_processing}
 
 
