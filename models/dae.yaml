@@ -5,16 +5,16 @@
 
       model: !obj:pylearn2.models.autoencoder.DenoisingAutoencoder {
         nvis : 9720,
-        nhid : 200,
-        irange : 0.001,
+        nhid : 500,
+        irange : 0.01,
         corruptor: !obj:pylearn2.corruption.SaltPepperCorruptor {
-            corruption_level: .2,
+            corruption_level: .0,
         },
-        act_enc: "sigmoid",
+        act_enc: "tanh",
         act_dec: "sigmoid",    # Linear activation on the decoder side.
     },
     algorithm: !obj:pylearn2.training_algorithms.sgd.SGD {
-        learning_rate : 1e-3,
+        learning_rate : 1e-4,
         batch_size : 100,
         learning_rule: !obj:pylearn2.training_algorithms.learning_rule.AdaDelta {},
         monitoring_batches : 10,
@@ -22,7 +22,7 @@
         termination_criterion: !obj:pylearn2.termination_criteria.And {
             criteria: [
                 !obj:pylearn2.termination_criteria.MonitorBased {
-                    channel_name: "reconstruction_error",
+                    channel_name: "objective",
                     prop_decrease: 0.,
                     N: 10
                 },
@@ -34,14 +34,14 @@
         cost: !obj:pylearn2.costs.cost.SumOfCosts {
             costs: [
                 !obj:pylearn2.costs.autoencoder.MeanBinaryCrossEntropy {},
-                !obj:pylearn2.costs.autoencoder.SparseActivation {
-                    coeff: 0.8,
-                    p: 0.0001,
-                },
+               # !obj:pylearn2.costs.autoencoder.SparseActivation {
+               #     coeff: 0.8,
+               #     p: 0.0001,
+               # },
             ]
         }
     },
 
-    save_path: "dae3.pkl",
+    save_path: "dae.pkl",
     save_freq: 1
 }
