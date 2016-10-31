@@ -1,4 +1,5 @@
 from common import EnsembleRegressor, load_data, to_csv
+import time
 
 if __name__ == '__main__':
     from docopt import docopt
@@ -14,4 +15,9 @@ if __name__ == '__main__':
     model.load_weights(folder+'/model.pkl')
     X, y = load_data(args['DATA'])
     X = X.transpose((0, 3, 1, 2))
-    to_csv(model.predict(X)[:, 0], y[:, 0], args['CSV'])
+
+    t = time.time()
+    pred = model.predict(X)[:, 0]
+    print(time.time() - t)
+    print(X.shape)
+    to_csv(X, pred, y[:, 0], args['CSV'])

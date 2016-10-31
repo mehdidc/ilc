@@ -32,5 +32,7 @@ def load_data(filename):
     y = data['y']
     return X, y
 
-def to_csv(pred, true, filename):
-    pd.DataFrame({'y_pred': pred, 'y_true': true}).to_csv(filename)
+def to_csv(inputs, pred, true, filename):
+    inputs = inputs.reshape((inputs.shape[0], -1))
+    nhits = (inputs>0).sum(axis=1)
+    pd.DataFrame({'y_pred': pred, 'y_true': true, 'nhits': nhits}).to_csv(filename)
